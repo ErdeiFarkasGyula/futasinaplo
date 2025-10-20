@@ -39,6 +39,18 @@
             background-color: #ffffff;
             border: 0px;
         }
+        #elvalaszto {
+            height: 10px;
+            border: 0;
+        }
+        .torles {
+            background-color: #ff4d4d;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            width: 100%;
+            cursor: pointer;
+        }
     </style>
     <script>
         function calcAvgSpeed(distance, time) {
@@ -63,7 +75,6 @@
             const tomegInput = document.getElementById('tomeg');
 
             const dateInput = document.getElementById('dateInput');
-
             const timeInput = document.getElementById('timeInput');
             const distanceInput = document.getElementById('distanceInput');
             const speedInput = document.getElementById('speedInput');
@@ -86,10 +97,12 @@
                     <td><input type="number" value="${tavolsag}"></td>
                     <td><input type="number" value="${atlgagSebesseg}"></td>
                     <td><input type="number" value="${elegetettKaloria}"></td>
+                    <td><button class="torles">Törlés</button></td>
                 `;
 
                 entriesTbody.appendChild(ujSor);
             });
+
         });
     </script>
     <main>
@@ -107,6 +120,9 @@
                 </tr>
             </thead>
             <tbody id="entries">
+                <br>
+                <br>
+                <button id="felvétel">Felvétel</button>
                 <tr>
                     <td><input type="date" id="dateInput"></td>
                     <td><input type="time" id="timeInput"></td>
@@ -115,9 +131,15 @@
                     <td><input type="number" id="caloriesInput" value="0"></td>
                 </tr>
                 <tr>
-                    <td>
-                        <button id="felvétel">Felvétel</button>
-                    </td>
+                    <td id="elvalaszto"></td>
+                </tr>
+                <tr>
+                    <td><input type="date" value="${date}"></td>
+                    <td><input type="time" value="${idotartam}"></td>
+                    <td><input type="number" value="${tavolsag}"></td>
+                    <td><input type="number" value="${atlgagSebesseg}"></td>
+                    <td><input type="number" value="${elegetettKaloria}"></td>
+                    <td><button class="torles">Törlés</button></td>
                 </tr>
             </tbody>
         </table>
