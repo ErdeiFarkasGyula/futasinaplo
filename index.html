@@ -7,6 +7,10 @@
 </head>
 <body>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
         body {
             font-family: Arial, sans-serif;
             margin: 20px;
@@ -22,16 +26,46 @@
         }
         th, td {
             border: 1px solid #ddd;
-            padding: 8px;
+            padding: 3px;
             text-align: left;
         }
         th {
-            background-color: #f2f2f2;
+            background-color: #b6b6b6;
+        }
+        td input {
+            width: 100%;
+            padding: 5px;
+            box-sizing: border-box;
+            background-color: #ffffff;
+            border: 0px;
         }
     </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const felvetelGomb = document.getElementById('felvétel');
+            const entriesTbody = document.getElementById('entries');
+
+            felvetelGomb.addEventListener('click', () => {
+                const ujSor = document.createElement('tr');
+                let atlagSebesseg = 0;
+                let elegetettKaloria = 0;
+
+                ujSor.innerHTML = `
+                    <td><input type="date" ></td>
+                    <td><input type="time"></td>
+                    <td><input type="number"></td>
+                    <td>-</td>
+                    <td>-</td>
+                `;
+
+                entriesTbody.appendChild(ujSor);
+            });
+        });
+    </script>
     <main>
         <h1>Futási napló</h1>
 
+        <button id="felvétel">Felvétel</button>
         <table>
             <thead>
                 <tr>
@@ -42,13 +76,14 @@
                     <th>Elégetett kalória</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody id="entries">
                 <tr>
-                    <td><input type="text" ></td>
-                    <td><input type="text"></td>
+                    <td><input type="date" ></td>
+                    <td><input type="time"></td>
                     <td><input type="number"></td>
                     <td>-</td>
                     <td>-</td>
+                </tr>
             </tbody>
         </table>
     </main>
