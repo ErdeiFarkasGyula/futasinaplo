@@ -100,8 +100,17 @@
                     <td><button class="torles">Törlés</button></td>
                 `;
 
+                const torlesGombok = document.getElementsByClassName('torles');
+                Array.from(torlesGombok).forEach(gomb => {
+                    gomb.addEventListener('click', (e) => {
+                        const sor = e.target.closest('tr');
+                        sor.remove();
+                    });
+                });
+                
                 entriesTbody.appendChild(ujSor);
             });
+
 
         });
     </script>
