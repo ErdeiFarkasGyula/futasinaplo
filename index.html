@@ -66,13 +66,51 @@
             const [hh, mm] = time.split(':').map(Number);
             const hours = hh + (mm / 60);
             return (weight * 7.7 * hours).toFixed(0);
+            
         }
+
+        function renderRuns() {
+      runTableBody.innerHTML = "";
+      runs.forEach((run, index) => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${run.date}</td>
+          <td>${run.duration}</td>
+          <td>${run.distance}</td>
+          <td>${run.avgSpeed.toFixed(1)}</td>
+          <td>${run.calories.toFixed(0)}</td>
+          <td>
+            <button onclick="editRun(${index})">✏️</button>
+            <button onclick="deleteRun(${index})">🗑️</button>
+          </td>
+        `;
+        runTableBody.appendChild(row);
+      });
+      updateSummary();
+    }
+
+    function updateSummary() {
+      const totalDist = runs.reduce((sum, r) => sum + r.distance, 0);
+      const totalTime = runs.reduce((sum, r) => sum + r.duration / 60, 0);
+      const totalCal = runs.reduce((sum, r) => sum + r.calories, 0);
+      totalDistanceEl.textContent = totalDist.toFixed(2);
+      avgSpeedEl.textContent = totalTime > 0 ? (totalDist / totalTime).toFixed(1) : 0;
+      totalCaloriesEl.textContent = totalCal.toFixed(0);
+      updateGoalStatus();
+    }
+
+    function updateGoalStatus() {
+      if (!goal) return;
+      const totalDist = runs.reduce((sum, r) => sum + r.distance, 0);
+      const percent = Math.min((totalDist / goal) * 100, 100);
+      goalStatus.textContent = `Cél: ${goal} km – Teljesítve: ${totalDist.toFixed(1)} km (${percent.toFixed(0)}%) ${percent >= 100 ? "✅" : "🏃"}`;
+    }
 
         function calcTotal() {
             let osszKal = 0;
             let osszTav = 0;
             const entriesTbody = document.getElementById('entries');
-            const sorok = entriesTbody.getElementsByTagName('tr');
+            const sorok = entriesTbody.getElementsByTagName('tr')
             Array.from(sorok).forEach(sor => {
                 const kaloriaCell = sor.cells[4];
                 const tavCell = sor.cells[2];
