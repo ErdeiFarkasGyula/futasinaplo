@@ -16,7 +16,7 @@
             margin: 20px;
             background-color: #f4f4f4;
         }
-        h1 {
+        h1, h2, h3 {
             color: #333;
         }
         table {
@@ -67,6 +67,28 @@
             const hours = hh + (mm / 60);
             return (weight * 7.7 * hours).toFixed(0);
         }
+
+        function calcTotal() {
+            let osszKal = 0;
+            let osszTav = 0;
+            const entriesTbody = document.getElementById('entries');
+            const sorok = entriesTbody.getElementsByTagName('tr');
+            Array.from(sorok).forEach(sor => {
+                const kaloriaCell = sor.cells[4];
+                const tavCell = sor.cells[2];
+                if (kaloriaCell) {
+                    const kaloriaErtek = parseFloat(kaloriaCell.querySelector('input').value) || 0;
+                    osszKal += kaloriaErtek;
+                }
+                if (tavCell) {
+                const tavErtek = parseFloat(tavCell.querySelector('input').value) || 0;
+                osszTav += tavErtek;
+                }
+            });
+
+            document.getElementById('osszKal').textContent = osszKal.toFixed(0) + ' kcal';
+            document.getElementById('osszTav').textContent = osszTav.toFixed(2) + ' km';
+        }
         
         document.addEventListener('DOMContentLoaded', () => {
             const felvetelGomb = document.getElementById('felvétel');
@@ -105,17 +127,21 @@
                     gomb.addEventListener('click', (e) => {
                         const sor = e.target.closest('tr');
                         sor.remove();
+                        calcTotal();
                     });
                 });
-                
+
+                calcTotal(); 
+
                 entriesTbody.appendChild(ujSor);
             });
-
-
         });
     </script>
     <main>
         <h1>Futási napló</h1>
+        <br>
+        <h3>Összes megtett táv: <span id="osszTav"> km</span></h3>
+        <h3>Összes elégetett kalória:<span id="osszKal"> kcal</span></h3>
         <br>
         <input type="number" id="tomeg" placeholder="Tömeg (kg)">
         <table>
@@ -141,14 +167,6 @@
                 </tr>
                 <tr>
                     <td id="elvalaszto"></td>
-                </tr>
-                <tr>
-                    <td><input type="date" value="${date}"></td>
-                    <td><input type="time" value="${idotartam}"></td>
-                    <td><input type="number" value="${tavolsag}"></td>
-                    <td><input type="number" value="${atlgagSebesseg}"></td>
-                    <td><input type="number" value="${elegetettKaloria}"></td>
-                    <td><button class="torles">Törlés</button></td>
                 </tr>
             </tbody>
         </table>
