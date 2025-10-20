@@ -1,226 +1,265 @@
 <!DOCTYPE html>
 <html lang="hu">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Futási napló</title>
-</head>
-<body>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Futási Napló</title>
     <style>
-        * {
+        body {
+            font-family: "Segoe UI", sans-serif;
+            background: #f5f7fa;
             margin: 0;
             padding: 0;
         }
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            background-color: #f4f4f4;
+
+        header {
+            background: #2e8b57;
+            color: white;
+            padding: 1rem 2rem;
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: bold;
         }
-        h1, h2, h3 {
-            color: #333;
+
+        main {
+            max-width: 800px;
+            margin: 2rem auto;
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
+
+        h2 {
+            color: #2e8b57;
+            margin-bottom: 0.5rem;
+        }
+
+        form {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 0.3rem;
+        }
+
+        input {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        button {
+            background: #2e8b57;
+            color: white;
+            border: none;
+            padding: 0.6rem 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #256b45;
+        }
+
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 20px;
+            margin-bottom: 1rem;
         }
+
         th, td {
-            border: 1px solid #ddd;
-            padding: 3px;
-            text-align: left;
+            padding: 0.75rem;
+            text-align: center;
+            border-bottom: 1px solid #ddd;
         }
+
         th {
-            background-color: #b6b6b6;
+            background: #f0f0f0;
         }
-        td input {
-            width: 100%;
-            padding: 5px;
-            box-sizing: border-box;
-            background-color: #ffffff;
-            border: 0px;
+
+        .summary {
+            background: #f9fff9;
+            border: 1px solid #d2f5d2;
+            padding: 1rem;
+            border-radius: 10px;
+            margin-top: 1rem;
         }
-        #elvalaszto {
-            height: 10px;
-            border: 0;
-        }
-        .torles {
-            background-color: #ff4d4d;
-            color: white;
-            border: none;
-            padding: 5px 10px;
-            width: 100%;
-            cursor: pointer;
+
+        .goal {
+            background: #fffbe0;
+            border: 1px solid #f0e68c;
+            padding: 1rem;
+            border-radius: 10px;
+            margin-top: 1rem;
         }
     </style>
-    <script>
-        function calcAvgSpeed(distance, time) {
-            if (!time) return 0;
-            const [hh, mm] = time.split(':').map(Number);
-            const hours = hh + (mm / 60);
-            if (!distance || !hours) return 0;
-            return (distance / hours).toFixed(2);
-        }
+</head>
+<body>
+    <header>Futási Napló</header>
 
-        function calcCalories(weight, time) {
-            if (!time || !weight) return 0;
-            const [hh, mm] = time.split(':').map(Number);
-            const hours = hh + (mm / 60);
-            return (weight * 7.7 * hours).toFixed(0);
-            
-        }
+    <main>
+        <section>
+        <h2>Új futás rögzítése</h2>
+        <form id="runForm">
+            <div>
+                <label>Dátum:</label>
+                <input type="date" id="date" required />
+            </div>
+            <div>
+                <label>Időtartam (perc):</label>
+                <input type="number" id="duration" required />
+            </div>
+            <div>
+                <label>Távolság (km):</label>
+                <input type="number" step="0.01" id="distance" required />
+            </div>
+            <div>
+                <label>Súly (kg):</label>
+                <input type="number" step="0.1" id="weight" required />
+            </div>
+            <button type="submit">Mentés</button>
+        </form>
+        </section>
+
+    <section>
+        <h2>Rögzített futások</h2>
+        <table id="runTable">
+            <thead>
+            <tr>
+                <th>Dátum</th>
+                <th>Időtartam (perc)</th>
+                <th>Távolság (km)</th>
+                <th>Átlagseb. (km/h)</th>
+                <th>Kalória (kcal)</th>
+                <th>Művelet</th>
+            </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </section>
+
+    <section class="summary">
+        <h2>Összesítés</h2>
+        <p>Összes távolság: <span id="totalDistance">0</span> km</p>
+        <p>Átlagsebesség: <span id="avgSpeed">0</span> km/h</p>
+        <p>Összes kalória: <span id="totalCalories">0</span> kcal</p>
+    </section>
+
+    <section class="goal">
+        <h2>Célkitűzés</h2>
+        <label>Heti cél (km):</label>
+        <input type="number" id="goalInput" placeholder="Pl. 20" />
+        <button id="setGoalBtn">Cél beállítása</button>
+        <p id="goalStatus"></p>
+    </section>
+  </main>
+
+  <script>
+        const MET_FUTAS = 7.7;
+        let runs = JSON.parse(localStorage.getItem("runs") || "[]");
+        let goal = JSON.parse(localStorage.getItem("goal") || "null");
+
+        const runForm = document.getElementById("runForm");
+        const runTableBody = document.querySelector("#runTable tbody");
+        const totalDistanceEl = document.getElementById("totalDistance");
+        const avgSpeedEl = document.getElementById("avgSpeed");
+        const totalCaloriesEl = document.getElementById("totalCalories");
+        const goalInput = document.getElementById("goalInput");
+        const goalStatus = document.getElementById("goalStatus");
+        const setGoalBtn = document.getElementById("setGoalBtn");
 
         function renderRuns() {
-      runTableBody.innerHTML = "";
-      runs.forEach((run, index) => {
-        const row = document.createElement("tr");
-        row.innerHTML = `
-          <td>${run.date}</td>
-          <td>${run.duration}</td>
-          <td>${run.distance}</td>
-          <td>${run.avgSpeed.toFixed(1)}</td>
-          <td>${run.calories.toFixed(0)}</td>
-          <td>
-            <button onclick="editRun(${index})">✏️</button>
-            <button onclick="deleteRun(${index})">🗑️</button>
-          </td>
-        `;
-        runTableBody.appendChild(row);
-      });
-      updateSummary();
-    }
-
-    function updateSummary() {
-      const totalDist = runs.reduce((sum, r) => sum + r.distance, 0);
-      const totalTime = runs.reduce((sum, r) => sum + r.duration / 60, 0);
-      const totalCal = runs.reduce((sum, r) => sum + r.calories, 0);
-      totalDistanceEl.textContent = totalDist.toFixed(2);
-      avgSpeedEl.textContent = totalTime > 0 ? (totalDist / totalTime).toFixed(1) : 0;
-      totalCaloriesEl.textContent = totalCal.toFixed(0);
-      updateGoalStatus();
-    }
-
-    function updateGoalStatus() {
-      if (!goal) return;
-      const totalDist = runs.reduce((sum, r) => sum + r.distance, 0);
-      const percent = Math.min((totalDist / goal) * 100, 100);
-      goalStatus.textContent = `Cél: ${goal} km – Teljesítve: ${totalDist.toFixed(1)} km (${percent.toFixed(0)}%) ${percent >= 100 ? "✅" : "🏃"}`;
-    }
-
-        function calcTotal() {
-            let osszKal = 0;
-            let osszTav = 0;
-            const entriesTbody = document.getElementById('entries');
-            const sorok = entriesTbody.getElementsByTagName('tr')
-            Array.from(sorok).forEach(sor => {
-                const kaloriaCell = sor.cells[4];
-                const tavCell = sor.cells[2];
-                if (kaloriaCell) {
-                    const kaloriaErtek = parseFloat(kaloriaCell.querySelector('input').value) || 0;
-                    osszKal += kaloriaErtek;
-                }
-                if (tavCell) {
-                const tavErtek = parseFloat(tavCell.querySelector('input').value) || 0;
-                osszTav += tavErtek;
-                }
-            });
-
-            document.getElementById('osszKal').textContent = osszKal.toFixed(0) + ' kcal';
-            document.getElementById('osszTav').textContent = osszTav.toFixed(2) + ' km';
-        }
-        
-        document.addEventListener('DOMContentLoaded', () => {
-            const felvetelGomb = document.getElementById('felvétel');
-            const entriesTbody = document.getElementById('entries');
-            
-            const tomegInput = document.getElementById('tomeg');
-
-            const dateInput = document.getElementById('dateInput');
-            const timeInput = document.getElementById('timeInput');
-            const distanceInput = document.getElementById('distanceInput');
-            const speedInput = document.getElementById('speedInput');
-            const caloriesInput = document.getElementById('caloriesInput');
-
-            felvetelGomb.addEventListener('click', () => {
-                const ujSor = document.createElement('tr');
-
-                let tomeg = parseFloat(tomegInput.value);
-
-                let date = dateInput.value;
-                let idotartam = timeInput.value;
-                let tavolsag = distanceInput.value;
-                let atlgagSebesseg = calcAvgSpeed(tavolsag, idotartam);
-                let elegetettKaloria = calcCalories(tomeg, idotartam);
-
-                ujSor.innerHTML = `
-                    <td><input type="date" value="${date}"></td>
-                    <td><input type="time" value="${idotartam}"></td>
-                    <td><input type="number" value="${tavolsag}"></td>
-                    <td><input type="number" value="${atlgagSebesseg}"></td>
-                    <td><input type="number" value="${elegetettKaloria}"></td>
-                    <td><button class="torles">Törlés</button></td>
+            runTableBody.innerHTML = "";
+            runs.forEach((run, index) => {
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                <td>${run.date}</td>
+                <td>${run.duration}</td>
+                <td>${run.distance}</td>
+                <td>${run.avgSpeed.toFixed(1)}</td>
+                <td>${run.calories.toFixed(0)}</td>
+                <td>
+                    <button onclick="editRun(${index})">Edit</button>
+                    <button onclick="deleteRun(${index})">X</button>
+                </td>
                 `;
-
-                const torlesGombok = document.getElementsByClassName('torles');
-                Array.from(torlesGombok).forEach(gomb => {
-                    gomb.addEventListener('click', (e) => {
-                        const sor = e.target.closest('tr');
-                        sor.remove();
-                        calcTotal();
-                    });
-                });
-
-                calcTotal(); 
-
-                entriesTbody.appendChild(ujSor);
+                runTableBody.appendChild(row);
             });
+            updateSummary();
+        }
+
+        function updateSummary() {
+            const totalDist = runs.reduce((sum, r) => sum + r.distance, 0);
+            const totalTime = runs.reduce((sum, r) => sum + r.duration / 60, 0);
+            const totalCal = runs.reduce((sum, r) => sum + r.calories, 0);
+            totalDistanceEl.textContent = totalDist.toFixed(2);
+            avgSpeedEl.textContent = totalTime > 0 ? (totalDist / totalTime).toFixed(1) : 0;
+            totalCaloriesEl.textContent = totalCal.toFixed(0);
+            updateGoalStatus();
+        }
+
+        function updateGoalStatus() {
+            if (!goal) return;
+            const totalDist = runs.reduce((sum, r) => sum + r.distance, 0);
+            const percent = Math.min((totalDist / goal) * 100, 100);
+            goalStatus.textContent = `Cél: ${goal} km – Teljesítve: ${totalDist.toFixed(1)} km (${percent.toFixed(0)}%) ${percent >= 100 ? ":D" : ":("}`;
+        }
+
+        runForm.addEventListener("submit", e => {
+            e.preventDefault();
+            const date = document.getElementById("date").value;
+            const duration = parseFloat(document.getElementById("duration").value);
+            const distance = parseFloat(document.getElementById("distance").value);
+            const weight = parseFloat(document.getElementById("weight").value);
+
+            const hours = duration / 60;
+            const avgSpeed = distance / hours;
+            const calories = MET_FUTAS * weight * hours;
+
+            runs.push({ date, duration, distance, weight, avgSpeed, calories });
+            localStorage.setItem("runs", JSON.stringify(runs));
+            renderRuns();
+            runForm.reset();
         });
 
-            setGoalBtn.addEventListener("click", () => {
-      goal = parseFloat(goalInput.value);
-      if (!goal || goal <= 0) return alert("Adj meg egy érvényes célt!");
-      localStorage.setItem("goal", JSON.stringify(goal));
-      updateGoalStatus();
-    });
+        function deleteRun(index) {
+            if (confirm("Biztosan törlöd ezt a futást?")) {
+                runs.splice(index, 1);
+                localStorage.setItem("runs", JSON.stringify(runs));
+                renderRuns();
+            }
+        }
 
-    renderRuns();
-    if (goal) {
-      goalInput.value = goal;
-      updateGoalStatus();
-    }
+        function editRun(index) {
+            const run = runs[index];
+            document.getElementById("date").value = run.date;
+            document.getElementById("duration").value = run.duration;
+            document.getElementById("distance").value = run.distance;
+            document.getElementById("weight").value = run.weight;
+            runs.splice(index, 1);
+            localStorage.setItem("runs", JSON.stringify(runs));
+            renderRuns();
+        }
+
+        setGoalBtn.addEventListener("click", () => {
+            goal = parseFloat(goalInput.value);
+            if (!goal || goal <= 0) return alert("Adj meg egy érvényes célt!");
+            localStorage.setItem("goal", JSON.stringify(goal));
+            updateGoalStatus();
+        });
+
+        renderRuns();
+        if (goal) {
+            goalInput.value = goal;
+            updateGoalStatus();
+        }
     </script>
-    <main>
-        <h1>Futási napló</h1>
-        <br>
-        <h3>Összes megtett táv: <span id="osszTav"> km</span></h3>
-        <h3>Összes elégetett kalória:<span id="osszKal"> kcal</span></h3>
-        <br>
-        <input type="number" id="tomeg" placeholder="Tömeg (kg)">
-        <table>
-            <thead>
-                <tr>
-                    <th>Dátum</th>
-                    <th>Időtartam</th>
-                    <th>Távolság (km)</th>
-                    <th>Átlagsebesség (km/h)</th>
-                    <th>Elégetett kalória</th>
-                </tr>
-            </thead>
-            <tbody id="entries">
-                <br>
-                <br>
-                <button id="felvétel">Felvétel</button>
-                <tr>
-                    <td><input type="date" id="dateInput"></td>
-                    <td><input type="time" id="timeInput"></td>
-                    <td><input type="number" id="distanceInput" value=""></td>
-                    <td><input type="number" id="speedInput" value="0"></td>
-                    <td><input type="number" id="caloriesInput" value="0"></td>
-                </tr>
-                <tr>
-                    <td id="elvalaszto"></td>
-                </tr>
-            </tbody>
-        </table>
-    </main>
 </body>
 </html>
