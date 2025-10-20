@@ -41,21 +41,51 @@
         }
     </style>
     <script>
+        function calcAvgSpeed(distance, time) {
+            if (!time) return 0;
+            const [hh, mm] = time.split(':').map(Number);
+            const hours = hh + (mm / 60);
+            if (!distance || !hours) return 0;
+            return (distance / hours).toFixed(2);
+        }
+
+        function calcCalories(weight, time) {
+            if (!time || !weight) return 0;
+            const [hh, mm] = time.split(':').map(Number);
+            const hours = hh + (mm / 60);
+            return (weight * 7.7 * hours).toFixed(0);
+        }
+        
         document.addEventListener('DOMContentLoaded', () => {
             const felvetelGomb = document.getElementById('felvétel');
             const entriesTbody = document.getElementById('entries');
+            
+            const tomegInput = document.getElementById('tomeg');
+
+            const dateInput = document.getElementById('dateInput');
+
+            const timeInput = document.getElementById('timeInput');
+            const distanceInput = document.getElementById('distanceInput');
+            const speedInput = document.getElementById('speedInput');
+            const caloriesInput = document.getElementById('caloriesInput');
 
             felvetelGomb.addEventListener('click', () => {
                 const ujSor = document.createElement('tr');
-                let atlagSebesseg = 0;
-                let elegetettKaloria = 0;
+
+                let tomeg = parseFloat(tomegInput.value);
+
+                let date = dateInput.value;
+                let idotartam = timeInput.value;
+                let tavolsag = distanceInput.value;
+                let atlgagSebesseg = calcAvgSpeed(tavolsag, idotartam);
+                let elegetettKaloria = calcCalories(tomeg, idotartam);
 
                 ujSor.innerHTML = `
-                    <td><input type="date" ></td>
-                    <td><input type="time"></td>
-                    <td><input type="number"></td>
-                    <td>-</td>
-                    <td>-</td>
+                    <td><input type="date" value="${date}"></td>
+                    <td><input type="time" value="${idotartam}"></td>
+                    <td><input type="number" value="${tavolsag}"></td>
+                    <td><input type="number" value="${atlgagSebesseg}"></td>
+                    <td><input type="number" value="${elegetettKaloria}"></td>
                 `;
 
                 entriesTbody.appendChild(ujSor);
@@ -64,8 +94,8 @@
     </script>
     <main>
         <h1>Futási napló</h1>
-
-        <button id="felvétel">Felvétel</button>
+        <br>
+        <input type="number" id="tomeg" placeholder="Tömeg (kg)">
         <table>
             <thead>
                 <tr>
@@ -78,11 +108,16 @@
             </thead>
             <tbody id="entries">
                 <tr>
-                    <td><input type="date" ></td>
-                    <td><input type="time"></td>
-                    <td><input type="number"></td>
-                    <td>-</td>
-                    <td>-</td>
+                    <td><input type="date" id="dateInput"></td>
+                    <td><input type="time" id="timeInput"></td>
+                    <td><input type="number" id="distanceInput" value=""></td>
+                    <td><input type="number" id="speedInput" value="0"></td>
+                    <td><input type="number" id="caloriesInput" value="0"></td>
+                </tr>
+                <tr>
+                    <td>
+                        <button id="felvétel">Felvétel</button>
+                    </td>
                 </tr>
             </tbody>
         </table>
